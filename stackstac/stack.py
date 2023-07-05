@@ -49,6 +49,7 @@ def stack(
         RasterioIOError("HTTP response code: 404"),
     ),
     reader: Type[Reader] = AutoParallelRioReader,
+    skip_not_valid: bool = True,
 ) -> xr.DataArray:
     """
     Create an `xarray.DataArray` of all the STAC items, reprojected to the same grid and stacked by time.
@@ -259,6 +260,9 @@ def stack(
         `~.AutoParallelRioReader`. However, there's also `~.FakeReader` (which doesn't read data at all,
         just returns random numbers), which can be helpful for isolating whether performace issues are
         due to IO and GDAL, or inherent to dask.
+    skip_not_valid:
+        When True, skip asset if the provided metadata doesn't allow to automatically compute the resolution. If set to
+        False it will raise a ValueError.
 
     Returns
     -------
@@ -292,6 +296,7 @@ def stack(
         bounds=bounds,
         bounds_latlon=bounds_latlon,
         snap_bounds=snap_bounds,
+        skip_not_valid=skip_not_valid,
     )
     arr = items_to_dask(
         asset_table,

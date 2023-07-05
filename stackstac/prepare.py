@@ -63,6 +63,7 @@ def prepare_items(
     bounds: Optional[Bbox] = None,
     bounds_latlon: Optional[Bbox] = None,
     snap_bounds: bool = True,
+    skip_not_valid: bool = True
 ) -> Tuple[np.ndarray, RasterSpec, List[str], ItemSequence]:
 
     if bounds is not None and bounds_latlon is not None:
@@ -264,6 +265,8 @@ def prepare_items(
                 # If there's no geotrans, compute resolutions from `proj:shape`
                 else:
                     if asset_bbox_proj is None or asset_shape is None:
+                        if skip_not_valid:
+                            continue
                         raise ValueError(
                             f"Cannot automatically compute the resolution, "
                             f"since asset {id!r} on item {item_i} {item['id']!r} "
@@ -298,6 +301,8 @@ def prepare_items(
             # we still get the spatial information needed to construct an array of NaNs.
             if bounds is None:
                 if asset_bbox_proj is None:
+                    if skip_not_valid:
+                        continue
                     raise ValueError(
                         f"Cannot automatically compute the bounds, "
                         f"since asset {id!r} on item {item_i} {item['id']!r} "
